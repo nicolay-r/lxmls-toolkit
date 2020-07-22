@@ -42,7 +42,23 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         # ----------
         # Solution to Exercise 1
 
-        raise NotImplementedError("Complete Exercise 1")
+        y = np.squeeze(y)
+
+        docs_per_label = np.zeros(n_classes)
+        for label in y:
+            docs_per_label[label] += 1.0
+        prior = docs_per_label / n_docs
+
+        words_per_label = np.zeros((n_words, n_classes))
+        for doc_id, label in enumerate(y):
+            for w_ind, w_count in enumerate(x[doc_id]):
+                words_per_label[w_ind, label] += w_count
+
+        total_per_label = np.sum(words_per_label, axis=0)
+
+        for w_ind in range(n_words):
+            for label in range(n_classes):
+                likelihood[w_ind, label] = (1 + words_per_label[w_ind, label]) / (total_per_label[label] + n_words)
 
         # End solution to Exercise 1
         # ----------
@@ -55,3 +71,4 @@ class MultinomialNaiveBayes(lc.LinearClassifier):
         self.prior = prior
         self.trained = True
         return params
+
