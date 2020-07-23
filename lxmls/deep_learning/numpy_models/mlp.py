@@ -94,9 +94,33 @@ class NumpyMLP(MLP):
 
         # ----------
         # Solution to Exercise 2
+        I = index2onehot(output, num_clases)
 
-        raise NotImplementedError("Implement Exercise 2")
-        
+        is_last = True
+        for layer_ind in reversed(range(num_hidden_layers + 1)):
+            if is_last:
+                errors.append(I - prob_y)
+                is_last = False
+            else:
+                w = self.parameters[layer_ind + 1][0]
+
+                e = np.matmul(np.transpose(w), np.transpose(errors[-1]))
+                e = np.transpose(e)
+
+                layer = layer_inputs[layer_ind + 1]
+                invert_layer = 1 - layer
+
+                e_r = np.multiply(e, layer, invert_layer)
+                errors.append(e_r)
+
+        gradients = []
+        for i, e in enumerate(reversed(errors)):
+            # print(layer_inputs[i].shape)
+            # print(e.shape)
+            g_w = (- 1.0 / num_examples) * np.matmul(np.transpose(e), layer_inputs[i])
+            g_b = (- 1.0 / num_examples) * np.sum(e, axis=0)
+            gradients.append([g_w, g_b])
+
         # End of solution to Exercise 2
         # ----------
 
